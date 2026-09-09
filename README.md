@@ -1,4 +1,6 @@
-# txmanifest-codespace
+# txw-codespace
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/stringhandler/txw-codespace)
 
 A [dev container](https://containers.dev) / GitHub Codespace that comes with the
 [`tx-manifest-wallet`](https://github.com/stringhandler/txmanifest-wallet) CLI
@@ -7,6 +9,22 @@ installed — nothing else. The wallet is managed by
 [`asdf-tx-manifest-wallet`](https://github.com/stringhandler/asdf-tx-manifest-wallet)
 plugin, so **the version can be upgraded or downgraded inside a running
 codespace without rebuilding it**.
+
+## Opening it
+
+Click the badge above, or from the repo page: **Code ▸ Codespaces ▸ Create
+codespace on main**. Nothing needs enabling first — Codespaces works on any
+public repo, and creation is billed to whoever opens it, against their own
+free-tier hours.
+
+First creation takes a couple of minutes: the image pulls, then
+`postCreateCommand` installs asdf and the wallet. Watch the creation log; it
+ends with `Ready.`. If you miss it, the same output is kept in
+`.devcontainer/post-create.log`.
+
+To run it locally instead of on GitHub, clone the repo, open it in VS Code with
+the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+extension, and choose **Reopen in Container**.
 
 ## What's in the container
 
