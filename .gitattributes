@@ -1,0 +1,4 @@
+# The scripts run inside a Linux container. A contributor cloning on Windows
+# with core.autocrlf=true would otherwise commit CRLF, and bash fails on it
+# with an unhelpful "bad interpreter: /usr/bin/env bash^M".
+*.sh text eol=lf

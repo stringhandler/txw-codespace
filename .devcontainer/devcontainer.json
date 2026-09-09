@@ -1,0 +1,45 @@
+{
+  "name": "tx-manifest-wallet",
+
+  // Ubuntu 24.04 matches the glibc of the GitHub runner that builds the
+  // published tx-manifest-wallet linux binaries.
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // Pinned so the home directory below is not a guess: the paths in remoteEnv
+  // have to be literals (see the comment there).
+  "remoteUser": "vscode",
+
+  // asdf 0.16+ is a single Go binary: no shell sourcing, just put its shim
+  // directory on PATH. Doing that here (rather than only in ~/.bashrc) means
+  // VS Code tasks and non-interactive shells see the tool too.
+  //
+  // /home/vscode is spelled out rather than written as ${containerEnv:HOME}.
+  // ${containerEnv:VAR} only reads variables baked into the image with ENV, and
+  // this image does not set HOME that way — it comes from the user's passwd
+  // entry at login. So ${containerEnv:HOME} expands to the empty string, which
+  // silently turned ASDF_DATA_DIR into /.asdf and made postCreateCommand fail
+  // with "could not create leading directories of '/.asdf/plugins/...'".
+  // ${containerEnv:PATH} is fine: PATH *is* an image ENV.
+  "remoteEnv": {
+    "ASDF_DATA_DIR": "/home/vscode/.asdf",
+    "PATH": "/home/vscode/.local/bin:/home/vscode/.asdf/shims:${containerEnv:PATH}"
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
+}

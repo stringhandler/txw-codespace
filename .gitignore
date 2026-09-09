@@ -1,0 +1,17 @@
+# Never commit wallet keys or run state (see the tx-manifest-wallet README).
+wallet*.json
+*_wallet.json
+oracle.json
+*.state.json
+*.instance.json
+
+.DS_Store
+
+# Provisioning transcript written by .devcontainer/post-create.sh
+.devcontainer/post-create.log
+
+# Scratch space for your own manifests, wallets and run state. Nothing in here
+# is tracked, so it can't be committed by accident — see README.
+work/*
+!work/.gitkeep
+meta
