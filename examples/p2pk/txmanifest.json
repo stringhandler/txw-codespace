@@ -1,6 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/stringhandler/txmanifest-wallet/main/schema/txmanifest.schema.json",
-    "manifest_version": "0.1.0",
+    "manifest_version": "0.2.0",
     "protocol": "p2pk-simplicity",
     "description": "Hello World — Pay-to-public-key using a Simplicity checksig program on Liquid.",
     "chain": "liquid",
@@ -11,8 +11,7 @@
                 "type": "simplicity",
                 "source": "./p2pk.simf"
             },
-            "asset": "lbtc",
-            "confidential": false
+            "asset": "lbtc"
         }
     },
     "actions": {

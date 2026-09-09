@@ -38,7 +38,11 @@
         "redhat.vscode-yaml"
       ],
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+
+        // Open the README preview on first attach. It is the getting-started
+        // page, so it should be the first thing a new codespace shows.
+        "workbench.startupEditor": "readme"
       }
     }
   }

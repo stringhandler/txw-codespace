@@ -2,85 +2,67 @@
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/stringhandler/txw-codespace)
 
-A [dev container](https://containers.dev) / GitHub Codespace that comes with the
-[`tx-manifest-wallet`](https://github.com/stringhandler/txmanifest-wallet) CLI
-installed — nothing else. The wallet is managed by
-[asdf](https://asdf-vm.com) via the
-[`asdf-tx-manifest-wallet`](https://github.com/stringhandler/asdf-tx-manifest-wallet)
-plugin, so **the version can be upgraded or downgraded inside a running
-codespace without rebuilding it**.
+A ready-to-run [dev container](https://containers.dev) / GitHub Codespace for
+[`tx-manifest-wallet`](https://github.com/stringhandler/txmanifest-wallet), the
+Liquid/Elements transaction-manifest CLI. The container has the wallet and
+nothing else.
 
-## Opening it
+## Quick start
 
-Click the badge above, or from the repo page: **Code ▸ Codespaces ▸ Create
-codespace on main**. Nothing needs enabling first — Codespaces works on any
-public repo, and creation is billed to whoever opens it, against their own
-free-tier hours.
-
-First creation takes a couple of minutes: the image pulls, then
-`postCreateCommand` installs asdf and the wallet. Watch the creation log; it
-ends with `Ready.`. If you miss it, the same output is kept in
-`.devcontainer/post-create.log`.
-
-To run it locally instead of on GitHub, clone the repo, open it in VS Code with
-the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-extension, and choose **Reopen in Container**.
-
-## What's in the container
-
-| Piece | Where it comes from |
-|-------|---------------------|
-| Base image | `mcr.microsoft.com/devcontainers/base:ubuntu-24.04` (matches the glibc of the published Linux release binaries) |
-| `asdf` | Pinned Go binary, installed by [.devcontainer/post-create.sh](.devcontainer/post-create.sh) into `/usr/local/bin` |
-| `tx-manifest-wallet` | asdf plugin, prebuilt release binary from GitHub — version pinned in [.tool-versions](.tool-versions) |
-| `txw` | Wrapper script in `/usr/local/bin`, installed by [.devcontainer/post-create.sh](.devcontainer/post-create.sh) |
-| `gh` | devcontainer feature |
-
-The wallet is **not** baked into the image. `postCreateCommand` installs asdf,
-adds the plugin, and runs `asdf install`, which reads `.tool-versions`. That is
-the only place the version is declared.
-
-## Usage
-
-`txw` is a shorthand for `tx-manifest-wallet` — the two are interchangeable
-everywhere. It's a wrapper script, not a shell alias, so it also works from
-scripts, VS Code tasks and `bash -c`.
+You have a terminal with **`txw`** on `PATH` — shorthand for
+`tx-manifest-wallet`; the two are interchangeable everywhere.
 
 ```sh
-txw --help
-
-# Create a wallet (defaults to Liquid testnet)
-txw create-wallet --out wallet.json
-txw info --wallet wallet.json
-
-# Work with a manifest
-txw validate ./txmanifest.json
-txw describe ./txmanifest.json
-txw run ./txmanifest.json <Action> --wallet wallet.json
+./scripts/doctor.sh    # prove the install works, end to end
+txw --help             # every command and flag
 ```
 
-Stay on Liquid testnet (the default), and keep keys out of version control.
-
-## Where to put your work
-
-`work/` is a scratch directory that is **entirely gitignored** — manifests,
-wallets, state files, whatever. Working there means nothing of yours can be
-committed to this repo by accident:
+Do your own work in **`work/`**. It is entirely gitignored, so wallets, keys and
+state files cannot be committed by accident.
 
 ```sh
 cd work
-txw create-wallet --out wallet.json
-txw run ./txmanifest.json Pay --wallet wallet.json
+txw create-wallet --out wallet.json    # Liquid testnet by default
+txw info --wallet wallet.json          # prints a receive address — go fund it
+txw sync --wallet wallet.json          # pull the funding in, show the balance
 ```
 
-The root `.gitignore` also catches `wallet*.json`, `*.state.json` and
-`*.instance.json` anywhere in the tree, but that is a safety net matching on
-filename. `work/` is the belt.
+Then drive a manifest. Copy it into `work/` first — `run` writes
+`*.state.json` beside the manifest, and you don't want that inside `examples/`:
 
-## Examples
+```sh
+cp -r ../examples/p2pk .
+txw describe p2pk/txmanifest.json                          # explore it interactively
+txw validate p2pk/txmanifest.json                          # static checks
+txw prepare  p2pk/txmanifest.json Pay --wallet wallet.json # split UTXOs if needed
+txw run      p2pk/txmanifest.json Pay --wallet wallet.json # build → sign → broadcast
+```
 
+> **Testnet is the default — keep it that way** unless you mean it.
+> `txw config default_network mainnet` switches to real money.
 
-The full set (dex, lending, last_will, styx, deadcat, …) lives in the
+### Commands
+
+| Command | What it does |
+|---------|--------------|
+| `create-wallet` | Generate a new wallet JSON file. |
+| `info` | Wallet fingerprint, xpub, oracle key, and a receive address. |
+| `sync` | Sync against an Esplora server and show the balance. |
+| `get-balance` | Last-synced balance, no network call. |
+| `describe <manifest>` | Interactively explore a manifest's classes and actions. |
+| `validate <manifest>` | Static schema/sanity checks. |
+| `prepare <manifest> <action>` | Ensure the wallet holds the UTXOs the action needs; broadcasts a split tx if not. |
+| `run <manifest> <action>` | Walk an action through resolve → build → sign → broadcast. |
+| `split` | Split a wallet asset into N equal UTXOs. |
+| `config` | Show or change `default_network` / `default_esplora`. |
+
+`txw <command> --help` has the full flag detail.
+
+## More examples
+
+[examples/p2pk](examples/p2pk) is vendored here as the "hello world" — a
+Simplicity pay-to-public-key — purely so a fresh codespace can prove itself.
+The full set (dex, lending, last_will, deadcat, …) lives in the
 [txmanifest-wallet](https://github.com/stringhandler/txmanifest-wallet) repo
 rather than being copied here, where it would drift from the manifest format
 the installed wallet actually speaks. Fetch it on demand:
@@ -92,6 +74,16 @@ the installed wallet actually speaks. Fetch it on demand:
 That puts a sparse clone in `work/txmanifest-wallet/` (gitignored, a few
 hundred KB, no history), keeping upstream's `examples/` + `schema/` layout so
 the manifests' relative `$schema` references still resolve.
+
+## Where to put your work
+
+`work/` is a scratch directory that is **entirely gitignored** — manifests,
+wallets, state files, whatever. Working there means nothing of yours can be
+committed to this repo by accident.
+
+The root `.gitignore` also catches `wallet*.json`, `*.state.json` and
+`*.instance.json` anywhere in the tree, but that is a safety net matching on
+filename. `work/` is the belt.
 
 ## Checking the install
 
@@ -129,6 +121,11 @@ Because `.tool-versions` is committed, the version you land on is what the next
 codespace gets. Multiple versions can be installed side by side; switching
 between them is just an `asdf set`.
 
+The manifest **format** version is tied to the wallet version: the wallet
+refuses a `txmanifest.json` whose `manifest_version` it does not speak. The
+vendored example tracks the pinned release, so downgrading far enough will stop
+it validating — that is what `./scripts/doctor.sh` catches.
+
 ### If a brand new release doesn't show up
 
 The plugin lists versions from the upstream repo's git tags:
@@ -138,10 +135,40 @@ asdf plugin update tx-manifest-wallet
 asdf list all tx-manifest-wallet
 ```
 
-## Bumping asdf itself
+## Opening this in a codespace
+
+Click the badge at the top, or from the repo page: **Code ▸ Codespaces ▸ Create
+codespace on main**. Nothing needs enabling first — Codespaces works on any
+public repo, and creation is billed to whoever opens it, against their own
+free-tier hours.
+
+First creation takes a couple of minutes: the image pulls, then
+`postCreateCommand` installs asdf and the wallet. Watch the creation log; it
+ends with `Ready.`. If you miss it, the same output is kept in
+`.devcontainer/post-create.log`.
+
+To run it locally instead of on GitHub, clone the repo, open it in VS Code with
+the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+extension, and choose **Reopen in Container**.
+
+## What's in the container
+
+| Piece | Where it comes from |
+|-------|---------------------|
+| Base image | `mcr.microsoft.com/devcontainers/base:ubuntu-24.04` (matches the glibc of the published Linux release binaries) |
+| `asdf` | Pinned Go binary, installed by [.devcontainer/post-create.sh](.devcontainer/post-create.sh) into `/usr/local/bin` |
+| `tx-manifest-wallet` | asdf plugin, prebuilt release binary from GitHub — version pinned in [.tool-versions](.tool-versions) |
+| `txw` | Wrapper script in `/usr/local/bin`, installed by [.devcontainer/post-create.sh](.devcontainer/post-create.sh) |
+| `gh` | devcontainer feature |
+
+The wallet is **not** baked into the image. `postCreateCommand` installs asdf,
+adds the plugin, and runs `asdf install`, which reads `.tool-versions`. That is
+the only place the version is declared — which is why the wallet can be
+upgraded or downgraded inside a running codespace without rebuilding it.
 
 `ASDF_VERSION` at the top of [.devcontainer/post-create.sh](.devcontainer/post-create.sh)
-pins asdf. Changing it does require a rebuild (or just re-running the script).
+pins asdf itself. Changing that one does require a rebuild (or just re-running
+the script).
 
 ## Notes / limits
 
