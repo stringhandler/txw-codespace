@@ -1,32 +1,37 @@
-# examples
+# Examples
 
-Two vendored manifests, one per chain, kept here so a fresh codespace can prove
-the wallet works end to end:
+| Example | Chain | Actions | Walkthrough |
+|---------|-------|---------|-------------|
+| [`p2pk`](p2pk) | Liquid testnet | `Pay`, `Receive` | [Root README](../README.md#liquid-testnet) |
+| [`bitcoin_covenant`](bitcoin_covenant) | Bitcoin signet (public Simplicity signet) | `Lock`, `Unlock` | [bitcoin_covenant/README.md](bitcoin_covenant/README.md) |
 
-    txw validate examples/p2pk/txmanifest.json
-    txw describe examples/p2pk/txmanifest.json
+Both run the same Simplicity program (`p2pk.simf`), a pay-to-public-key, on different chains.
+`bitcoin_covenant` comes with its own `config.json` and needs wallet 0.3.0 or later.
 
-`./scripts/doctor.sh` runs that validate as its last check.
+Try one without spending anything:
 
-- `p2pk` is the "hello world" manifest: a Simplicity pay-to-public-key on
-  **Liquid** testnet.
-- [`bitcoin_covenant`](bitcoin_covenant) runs the same `p2pk.simf` as a
-  covenant on **Bitcoin signet** (the public Simplicity signet). It ships its
-  own `config.json`, and its [README](bitcoin_covenant/README.md) walks through
-  wallet, faucet, Lock and Unlock.
+```sh
+txw describe examples/p2pk/txmanifest.json
+txw validate examples/p2pk/txmanifest.json
+```
 
-Both are copies of the matching directory in
-[txmanifest-wallet](https://github.com/stringhandler/txmanifest-wallet)'s
-`examples/`, with `$schema` pointing at the raw URL of the upstream schema so
-editors can still resolve it.
+> [!IMPORTANT]
+> **Copy an example into `work/` before you `run` it.** `run` writes `*.state.json` next to the
+> manifest, and `work/` is gitignored.
 
-**The full example set lives upstream, not here**: dex, lending, last_will,
-deadcat, zeroconf, bitcoin_pay and more. Copying them into this repo would mean
-maintaining them against a manifest format that moves. Fetch them instead:
+## More examples
 
-    ./scripts/fetch-examples.sh
+The full set (dex, lending, last_will, deadcat, zeroconf, bitcoin_pay and more) lives
+[upstream](https://github.com/stringhandler/txmanifest-wallet/tree/main/examples) so it doesn't
+drift from the manifest format. Fetch it with:
 
-That drops a sparse clone in `work/txmanifest-wallet/`, which is gitignored.
+```sh
+./scripts/fetch-examples.sh    # sparse clone into work/txmanifest-wallet/ (gitignored)
+```
 
-If a vendored manifest here ever stops validating against a newer wallet
-release, it's the copy that's stale, so check upstream.
+## Notes for maintainers
+
+The two examples here are copies of the matching directories in
+[txmanifest-wallet](https://github.com/stringhandler/txmanifest-wallet)'s `examples/`. Their
+`$schema` points at the upstream schema's raw URL, so editors can still resolve it. If one stops
+validating against a newer wallet release, the copy here is stale. Re-sync it from upstream.
