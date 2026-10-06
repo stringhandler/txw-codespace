@@ -4,7 +4,7 @@
 
 A ready-to-run [dev container](https://containers.dev) / GitHub Codespace for
 [`tx-manifest-wallet`](https://github.com/stringhandler/txmanifest-wallet), the
-Liquid/Elements transaction-manifest CLI. The container has the wallet and
+Liquid/Elements and Bitcoin transaction-manifest CLI. The container has the wallet and
 nothing else.
 
 ## Quick start
@@ -62,6 +62,9 @@ txw run      p2pk/txmanifest.json Pay --wallet wallet.json # build → sign → 
 
 [examples/p2pk](examples/p2pk) is vendored here as the "hello world" — a
 Simplicity pay-to-public-key — purely so a fresh codespace can prove itself.
+[examples/bitcoin_covenant](examples/bitcoin_covenant) is the same program as a
+covenant on **Bitcoin signet**; its README covers wallet setup, the faucet, and
+Lock/Unlock.
 The full set (dex, lending, last_will, deadcat, …) lives in the
 [txmanifest-wallet](https://github.com/stringhandler/txmanifest-wallet) repo
 rather than being copied here, where it would drift from the manifest format
